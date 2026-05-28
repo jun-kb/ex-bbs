@@ -41,11 +41,6 @@ public class ArticleController {
     public String index(Model model, ArticleForm articleForm, CommentForm commentForm) {
         List<Article> articleList = articleRepository.fastFindAll();
 
-//        for (Article article : articleList) {
-//            List<Comment> commentList = commentRepository.findByArticleId(article.getId());
-//            article.setCommentList(commentList);
-//        }
-
         model.addAttribute("articles", articleList);
 
         return "top-page";
@@ -106,7 +101,6 @@ public class ArticleController {
     @PostMapping("/delete")
     @Transactional
     public String deleteArticle(Integer articleId) {
-        commentRepository.deleteByArticleId(articleId);
         articleRepository.deleteById(articleId);
 
         return "redirect:/bbs";

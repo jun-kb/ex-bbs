@@ -4,6 +4,7 @@ import com.example.domain.Article;
 import com.example.domain.Comment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -23,28 +24,35 @@ public class ArticleRepository {
     private final NamedParameterJdbcTemplate template;
 
     private static final RowMapper<Article> ARTICLE_ROW_MAPPER = new BeanPropertyRowMapper<>(Article.class);
-    private static final RowMapper<Article> ARTICLE_ROW_MAPPER_FAST = (rs, i) -> {
-        Article article = Article.builder()
-                .id(rs.getInt("id"))
-                .name(rs.getString("name"))
-                .content(rs.getString("content"))
-                .build();
+    private static final ResultSetExtractor<List<Article>> ARTICLE_RESULT_SET_EXTRACTOR = (rs) -> {
+        Map<Integer, Article> map = new LinkedHashMap<>();
 
-        if (Objects.isNull(rs.getObject("com_id"))) {
-            return article;
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            if (!map.containsKey(id)) {
+                map.put(id, Article.builder()
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .content(rs.getString("content"))
+                        .commentList(new LinkedList<>())
+                        .build());
+            }
+
+            if (Objects.isNull(rs.getObject("com_id"))) {
+                continue;
+            }
+
+            Article article = map.get(id);
+            article.getCommentList().add(
+                    Comment.builder()
+                            .id(rs.getInt("com_id"))
+                            .name(rs.getString("com_name"))
+                            .content(rs.getString("com_content"))
+                            .articleId(id)
+                            .build()
+            );
         }
-
-        List<Comment> commentList = new LinkedList<>();
-        commentList.add(
-                Comment.builder()
-                        .id(rs.getInt("com_id"))
-                        .name(rs.getString("com_name"))
-                        .content(rs.getString("com_content"))
-                        .articleId(rs.getInt("id"))
-                        .build()
-        );
-        article.setCommentList(commentList);
-        return article;
+        return new LinkedList<>(map.values());
     };
 
     /**
@@ -73,17 +81,7 @@ public class ArticleRepository {
                 ON a.id = c.article_id
                 ORDER BY a.id DESC, c.id DESC;
                 """;
-        List<Article> articleList = template.query(sql, ARTICLE_ROW_MAPPER_FAST);
-        Map<Integer, Article> articleMap = new LinkedHashMap<>();
-        for (Article article : articleList) {
-            int currentId = article.getId();
-            if (!articleMap.containsKey(currentId)) {
-                articleMap.put(currentId, article);
-            } else {
-                articleMap.get(currentId).getCommentList().add(article.getCommentList().getFirst());
-            }
-        }
-        return articleMap.values().stream().toList();
+        return template.query(sql, ARTICLE_RESULT_SET_EXTRACTOR);
     }
 
     /**
