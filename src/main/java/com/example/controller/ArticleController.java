@@ -39,12 +39,12 @@ public class ArticleController {
      */
     @GetMapping("")
     public String index(Model model, ArticleForm articleForm, CommentForm commentForm) {
-        List<Article> articleList = articleRepository.findAll();
+        List<Article> articleList = articleRepository.fastFindAll();
 
-        for (Article article : articleList) {
-            List<Comment> commentList = commentRepository.findByArticleId(article.getId());
-            article.setCommentList(commentList);
-        }
+//        for (Article article : articleList) {
+//            List<Comment> commentList = commentRepository.findByArticleId(article.getId());
+//            article.setCommentList(commentList);
+//        }
 
         model.addAttribute("articles", articleList);
 
