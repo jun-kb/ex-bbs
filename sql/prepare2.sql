@@ -9,5 +9,5 @@ CREATE TABLE comments(
   id serial PRIMARY KEY, -- コメントID
   name text NOT NULL,    -- 名前
   content text NOT NULL, -- コメント内容
-  article_id integer REFERENCES articles (id)  --投稿ID
+  article_id integer REFERENCES articles (id) ON DELETE CASCADE  --投稿ID
 );
