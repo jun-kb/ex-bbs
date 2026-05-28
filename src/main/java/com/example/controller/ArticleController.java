@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
+/**
+ * 掲示板の記事およびコメントの投稿・削除・表示を制御するコントローラー.
+ */
 @Controller
 @RequestMapping("/bbs")
 @RequiredArgsConstructor
@@ -27,7 +30,12 @@ public class ArticleController {
     private final CommentRepository commentRepository;
 
     /**
-     * 記事とそれに紐づくコメントの一覧画面を表示する.
+     * 掲示板のトップ画面を表示し、記事とそれに紐づくコメントの一覧を取得する.
+     *
+     * @param model       画面にデータを渡すためのModelオブジェクト
+     * @param articleForm 記事投稿用のフォームオブジェクト
+     * @param commentForm コメント投稿用のフォームオブジェクト
+     * @return 遷移先のトップ画面テンプレート名
      */
     @GetMapping("")
     public String index(Model model, ArticleForm articleForm, CommentForm commentForm) {
@@ -45,6 +53,12 @@ public class ArticleController {
 
     /**
      * 記事を投稿する.
+     *
+     * @param form        バリデーション済みの記事投稿用フォームオブジェクト
+     * @param result      バリデーション結果のBindingResultオブジェクト
+     * @param model       画面にデータを渡すためのModelオブジェクト
+     * @param commentForm コメント投稿用のフォームオブジェクト
+     * @return エラーがある場合はトップ画面、正常終了時はトップ画面へのリダイレクトパス
      */
     @PostMapping("/insert")
     public String insertArticle(@Validated ArticleForm form, BindingResult result, Model model, CommentForm commentForm) {
@@ -62,6 +76,12 @@ public class ArticleController {
 
     /**
      * コメントを投稿する.
+     *
+     * @param form        バリデーション済みのコメント投稿用フォームオブジェクト
+     * @param result      バリデーション結果のBindingResultオブジェクト
+     * @param model       画面にデータを渡すためのModelオブジェクト
+     * @param articleForm 記事投稿用のフォームオブジェクト
+     * @return エラーがある場合はトップ画面、正常終了時はトップ画面へのリダイレクトパス
      */
     @PostMapping("/insert-comment")
     public String insertComment(@Validated CommentForm form, BindingResult result, Model model, ArticleForm articleForm) {
@@ -79,6 +99,9 @@ public class ArticleController {
 
     /**
      * 記事を削除する.
+     *
+     * @param articleId 削除対象の記事ID
+     * @return トップ画面へのリダイレクトパス
      */
     @PostMapping("/delete")
     @Transactional
