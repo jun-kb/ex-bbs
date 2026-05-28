@@ -9,31 +9,31 @@
     <div>
       <form
         action="#"
-        th:action="@{/articles/insert}"
+        th:action="@{/bbs/insert}"
         th:object="${articleForm}"
         method="post"
       >
         <div>
           <label for="article-name">投稿者名：</label>
-          <input type="text" id="article-name" th:field="*{name}" />
+          <input type="text" id="article-name" th:field="*{articleName}" />
           <span
             style="color: red"
-            th:if="${#fields.hasErrors('name')}"
-            th:errors="*{name}"
+            th:if="${#fields.hasErrors('articleName')}"
+            th:errors="*{articleName}"
           ></span>
         </div>
         <div>
           <label for="article-content">記事内容：</label>
           <textarea
             id="article-content"
-            th:field="*{content}"
+            th:field="*{articleContent}"
             rows="10"
             cols="40"
           ></textarea>
           <span
             style="color: red"
-            th:if="${#fields.hasErrors('content')}"
-            th:errors="*{content}"
+            th:if="${#fields.hasErrors('articleContent')}"
+            th:errors="*{articleContent}"
           ></span>
         </div>
         <button type="submit">記事投稿</button>
@@ -46,9 +46,9 @@
       <div>
         投稿者名：<span th:text="${article.name}"></span><br />
         投稿内容：
-        <p th:text="${article.content}"></p>
+        <p th:text="${article.content}" style="white-space: pre-wrap"></p>
 
-        <form th:action="@{/articles/delete}" method="post">
+        <form th:action="@{/bbs/delete}" method="post">
           <input type="hidden" name="articleId" th:value="${article.id}" />
           <button type="submit">記事削除</button>
         </form>
@@ -63,32 +63,32 @@
 
       <form
         action="#"
-        th:action="@{/articles/insert-comment}"
+        th:action="@{/bbs/insert-comment}"
         th:object="${commentForm}"
         method="post"
       >
         <input type="hidden" name="articleId" th:value="${article.id}" />
         <div>
           <label for="comment-name">名前：</label><br />
-          <input type="text" id="comment-name" th:field="*{name}" />
+          <input type="text" id="comment-name" th:field="*{commentName}" />
           <span
             style="color: red"
-            th:if="${#fields.hasErrors('name')} and *{articleId} == ${article.id}"
-            th:errors="*{name}"
+            th:if="${#fields.hasErrors('commentName')} and *{articleId} == ${article.id}"
+            th:errors="*{commentName}"
           ></span>
         </div>
         <div>
           <label for="comment-content">コメント：</label><br />
           <textarea
             id="comment-content"
-            th:field="*{content}"
+            th:field="*{commentContent}"
             rows="10"
             cols="40"
           ></textarea>
           <span
             style="color: red"
-            th:if="${#fields.hasErrors('content')} and *{articleId} == ${article.id}"
-            th:errors="*{content}"
+            th:if="${#fields.hasErrors('commentContent')} and *{articleId} == ${article.id}"
+            th:errors="*{commentContent}"
           ></span>
         </div>
         <button type="submit">コメント投稿</button>
@@ -96,6 +96,8 @@
       <hr />
     </div>
 
-    <div th:unless="${clothes}">まだ記事はありません</div>
+    <div th:if="!${articles} OR ${#lists.isEmpty(articles)}">
+      まだ記事はありません
+    </div>
   </body>
 </html>

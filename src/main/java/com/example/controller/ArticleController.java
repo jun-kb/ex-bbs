@@ -7,7 +7,6 @@ import com.example.form.CommentForm;
 import com.example.repository.ArticleRepository;
 import com.example.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -54,7 +53,8 @@ public class ArticleController {
         }
 
         Article article = new Article();
-        BeanUtils.copyProperties(form, article);
+        article.setName(form.getArticleName());
+        article.setContent(form.getArticleContent());
 
         articleRepository.insert(article);
         return "redirect:/bbs";
@@ -68,10 +68,11 @@ public class ArticleController {
         if (result.hasErrors()) {
             return index(model, articleForm, form);
         }
-        
-        Comment comment = new Comment();
-        BeanUtils.copyProperties(form, comment);
 
+        Comment comment = new Comment();
+        comment.setName(form.getCommentName());
+        comment.setContent(form.getCommentContent());
+        comment.setArticleId(form.getArticleId());
         commentRepository.insert(comment);
         return "redirect:/bbs";
     }
